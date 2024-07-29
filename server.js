@@ -93,6 +93,7 @@ io.on("connection", function(socket) {
     io.emit("userCount", userCount);
 
     socket.on("newuser", function(username) {
+        socket.username = username;
         socket.broadcast.emit("update", username + " entrou na conversa!");
     });
 
@@ -123,8 +124,16 @@ io.on("connection", function(socket) {
             socket.broadcast.emit("chat", message);
         });
     });
+
+    socket.on("typing", function() {
+        socket.broadcast.emit("typing", socket.username);
+    });
+
+    socket.on("stop typing", function() {
+        socket.broadcast.emit("stop typing", socket.username);
+    });
 });
 
 server.listen(port, function() {
-    console.log("Server running on port 5000");
+    console.log(`Server running on port ${port}`);
 });
