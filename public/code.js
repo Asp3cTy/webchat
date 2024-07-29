@@ -7,8 +7,6 @@ document.addEventListener('DOMContentLoaded', function() {
     let lastMinute = null;
     let lastSender = null;
     let replyingTo = null;
-    let typing = false;
-    let timeout = undefined;
 
     // Verifica se há informações de login no localStorage
     function checkLogin() {
@@ -43,21 +41,6 @@ document.addEventListener('DOMContentLoaded', function() {
         localStorage.removeItem('messages');
         const messageContainer = app.querySelector(".messages");
         messageContainer.innerHTML = '';
-    }
-
-    // Solicitar permissão para notificações
-    if (Notification.permission !== "granted") {
-        Notification.requestPermission();
-    }
-
-    // Função para mostrar notificação
-    function showNotification(message) {
-        if (Notification.permission === "granted") {
-            const notification = new Notification("Nova mensagem", {
-                body: `${message.username}: ${message.text || "Enviou uma imagem"}`,
-                icon: "path/to/icon.png" // opcional, adicione um ícone
-            });
-        }
     }
 
     app.querySelector("#login-user").addEventListener("click", function() {
@@ -139,8 +122,6 @@ document.addEventListener('DOMContentLoaded', function() {
         socket.emit("chat", msgObj);
         app.querySelector("#message-input").value = "";
         clearReply();
-        clearTimeout(timeout);
-        timeoutFunction();
     }
 
     function handlePaste(event) {
@@ -192,8 +173,6 @@ document.addEventListener('DOMContentLoaded', function() {
         saveMessage(msgObj); // Salvar imagem no localStorage
         socket.emit("chat", msgObj);
         clearReply();
-        clearTimeout(timeout);
-        timeoutFunction();
     }
 
     function getBrasiliaTime() {
@@ -340,17 +319,6 @@ document.addEventListener('DOMContentLoaded', function() {
     app.querySelector("#message-input").addEventListener("keypress", function(event) {
         if (event.key === "Enter") {
             sendMessage();
-            clearTimeout(timeout);
-            timeoutFunction();
-        } else {
-            if (!typing) {
-                typing = true;
-                socket.emit("typing");
-                timeout = setTimeout(timeoutFunction, 3000);
-            } else {
-                clearTimeout(timeout);
-                timeout = setTimeout(timeoutFunction, 3000);
-            }
         }
     });
 
@@ -366,7 +334,7 @@ document.addEventListener('DOMContentLoaded', function() {
     document.querySelector("#exit-chat").addEventListener("click", function() {
         logoutUser();
     });
-
+    
     document.querySelector("#dropdown-exit-chat").addEventListener("click", function() {
         logoutUser();
     });
@@ -379,22 +347,6 @@ document.addEventListener('DOMContentLoaded', function() {
         if (message.username !== uname) {
             renderMessage("other", message);
             saveMessage(message); // Salvar mensagem recebida no localStorage
-            showNotification(message); // Mostrar notificação para nova mensagem
-        }
-    });
-
-    socket.on("typing", function(username) {
-        const typingIndicator = document.querySelector(".typing-indicator");
-        if (username !== uname) {
-            typingIndicator.innerText = `${username} está digitando...`;
-            typingIndicator.style.display = 'block';
-        }
-    });
-
-    socket.on("stop typing", function(username) {
-        const typingIndicator = document.querySelector(".typing-indicator");
-        if (username !== uname) {
-            typingIndicator.style.display = 'none';
         }
     });
 
@@ -404,10 +356,4 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Verifica login ao carregar a página
     checkLogin();
-
-    // Função para notificar que o usuário está digitando
-    function timeoutFunction() {
-        typing = false;
-        socket.emit("stop typing");
-    }
 });
