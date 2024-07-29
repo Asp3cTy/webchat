@@ -1,0 +1,307 @@
+html, body {
+    height: 100%;
+    margin: 0;
+    font-family: "Poppins", sans-serif;
+}
+
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #333;
+}
+
+.app {
+    width: 100%;
+    max-width: 1200px;
+    height: 100%;
+    background: #333;
+    border: 1px solid #eee;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.screen {
+    display: none;
+    flex: 1;
+    height: 100%;
+}
+
+.screen.active {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+}
+
+.form {
+    margin: auto;
+    width: 80%;
+    max-width: 400px;
+    padding: 20px;
+    background-color: #1e1e1e;
+    border: 1px solid #333;
+}
+
+.form h2 {
+    margin-bottom: 20px;
+    font-size: 30px;
+    color: #ffffff;
+    border-bottom: 4px solid #555;
+    padding: 5px 0px;
+    display: inline-block;
+
+}
+
+.chat-screen .header {
+    background: #333;
+    height: 50px;
+    padding: 0px 20px;
+    color: #eee;
+    flex-shrink: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.chat-screen .header .logo {
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.chat-screen .header .users-connected {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 14px;
+}
+
+.chat-screen .header .online-count {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.chat-screen .header .online-dot {
+    width: 10px;
+    height: 10px;
+    background-color: #0f0;
+    border-radius: 50%;
+}
+
+.chat-screen .content {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+}
+
+.chat-screen .messages-container {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    background: #f5f5f5;
+    overflow: hidden;
+    padding: 10px;
+}
+
+.chat-screen .messages {
+    flex: 1;
+    background: #121212;
+    overflow-y: auto;
+    padding: 10px;
+    border-radius: 10px;
+    margin-bottom: 10px;
+}
+
+.chat-screen .messages .message {
+    display: flex;
+    padding: 10px;
+}
+
+.chat-screen .messages .message > div {
+    max-width: 80%;
+    background: #fff;
+    box-shadow: 0px 0px 20px 5px rgba(0, 0, 0, 0.05);
+    padding: 10px;
+    border-radius: 10px;
+}
+
+.chat-screen .messages .my-message {
+    justify-content: flex-end;
+}
+
+.chat-screen .messages .other-message {
+    justify-content: flex-start;
+}
+
+.chat-screen .messages .message .name {
+    font-size: 13px;
+    color: #555;
+    margin-bottom: 5px;
+}
+
+.chat-screen .messages .message .text {
+    word-wrap: break-word;
+}
+
+.chat-screen .messages .message .time {
+    font-size: 12px;
+    color: #888;
+    text-align: right;
+    display: block;
+    margin-top: 5px;
+}
+
+.chat-screen .messages .update {
+    text-align: center;
+    padding: 10px;
+    font-style: italic;
+}
+
+.chat-screen .typebox {
+    width: 100%;
+    height: 50px;
+    padding: 5px 10px;
+    background: #f5f5f5;
+    border-top: 1px solid #ddd;
+    display: flex;
+    align-items: center;
+}
+
+.chat-screen .messages .chat-image {
+    border: 1px solid #555;
+    max-width: 100%;
+    max-height: 200px;
+    margin-top: 10px;
+    border-radius: 10px;
+    display: block;
+}
+
+/* Estilos para o modo noturno */
+body.dark-mode {
+    background-color: #121212;
+    color: #ffffff;
+}
+
+body.dark-mode .app {
+    background-color: #1e1e1e;
+    border: 1px solid #333;
+}
+
+body.dark-mode .header {
+    background-color: #333;
+    color: #ffffff;
+}
+
+body.dark-mode .messages-container {
+    background-color: #1e1e1e;
+}
+
+body.dark-mode .typebox {
+    background-color: #333;
+    border-top: 1px solid #555;
+}
+
+body.dark-mode .form {
+    background-color: #1e1e1e;
+    border: 1px solid #333;
+}
+
+body.dark-mode .form h2 {
+    color: #ffffff;
+}
+
+body.dark-mode .form-group label {
+    color: #ffffff;
+}
+
+body.dark-mode .btn-primary {
+    background-color: #007bff;
+    border-color: #007bff;
+}
+
+body.dark-mode .btn-secondary {
+    background-color: #6c757d;
+    border-color: #6c757d;
+}
+
+body.dark-mode .btn-danger {
+    background-color: #dc3545;
+    border-color: #dc3545;
+}
+
+body.dark-mode .form-control,
+body.dark-mode .btn,
+body.dark-mode .typebox input,
+body.dark-mode .typebox button {
+    background-color: #333;
+    color: #ffffff;
+    border: 1px solid #555;
+}
+
+body.dark-mode .messages .message > div {
+    background-color: #333;
+    color: #ffffff;
+}
+
+body.dark-mode .messages .update {
+    color: #ffffff;
+}
+
+body.dark-mode .messages .chat-image {
+    border: 1px solid #555;
+}
+
+/* Estilo para a seção de resposta */
+.reply-section {
+    display: none;
+    align-items: center;
+    padding: 5px 10px;
+    background: #f5f5f5;
+    border-top: 1px solid #ddd;
+    margin-bottom: 10px;
+}
+
+.reply-section.active {
+    display: flex;
+}
+
+.reply-section #replying-to {
+    flex: 1;
+    font-size: 14px;
+    color: #555;
+}
+
+.reply-section #cancel-reply {
+    margin-left: 10px;
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 5px 10px;
+    cursor: pointer;
+}
+
+.reply-section #cancel-reply:hover {
+    background-color: #c82333;
+}
+
+/* Estilo para o botão de emoji */
+#emoji-button {
+    font-size: 1.5em;
+    line-height: 1;
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
+#emoji-button:hover {
+    background-color: #f0f0f0;
+}
+
+html {
+    -webkit-text-size-adjust: 100%;
+}
