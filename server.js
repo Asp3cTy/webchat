@@ -116,12 +116,21 @@ io.on("connection", function(socket) {
 
     socket.on("chat", function(message) {
         const query = 'INSERT INTO messages (username, message, image, time, reply_to) VALUES (?, ?, ?, ?, ?)';
-        const values = [message.username, message.text, message.image, message.time, message.replyTo];
+        const values = [message.username, message.text, message.image, message.time, message.replyTo ? message.replyTo.id : null];
 
         db.query(query, values, (err, result) => {
             if (err) throw err;
             socket.broadcast.emit("chat", message);
         });
+    });
+
+    // Evento de digitação
+    socket.on("typing", function(data) {
+        socket.broadcast.emit("typing", data);
+    });
+
+    socket.on("stopTyping", function(data) {
+        socket.broadcast.emit("stopTyping", data);
     });
 });
 
