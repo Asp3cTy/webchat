@@ -7,6 +7,45 @@ document.addEventListener('DOMContentLoaded', function() {
     let lastMinute = null;
     let lastSender = null;
     let replyingTo = null;
+    let typingTimeout;
+    let originalTitle = document.title;
+    let flashing = false;
+
+    // Função para alternar entre modos claro e escuro
+    function toggleMode() {
+        const body = document.body;
+        const modeButton = document.getElementById('toggle-mode');
+        const modeText = document.getElementById('dropdown-toggle-mode');
+
+        body.classList.toggle('light-mode');
+        body.classList.toggle('dark-mode');
+
+        if (body.classList.contains('light-mode')) {
+            modeButton.textContent = 'Modo Escuro';
+            modeText.textContent = 'Modo Escuro';
+            localStorage.setItem('mode', 'light');
+        } else {
+            modeButton.textContent = 'Modo Claro';
+            modeText.textContent = 'Modo Claro';
+            localStorage.setItem('mode', 'dark');
+        }
+    }
+
+    // Carregar o modo preferido do usuário
+    function loadMode() {
+        const savedMode = localStorage.getItem('mode');
+        if (savedMode === 'light') {
+            document.body.classList.add('light-mode');
+            document.body.classList.remove('dark-mode');
+            document.getElementById('toggle-mode').textContent = 'Modo Escuro';
+            document.getElementById('dropdown-toggle-mode').textContent = 'Modo Escuro';
+        } else {
+            document.body.classList.add('dark-mode');
+            document.body.classList.remove('light-mode');
+            document.getElementById('toggle-mode').textContent = 'Modo Claro';
+            document.getElementById('dropdown-toggle-mode').textContent = 'Modo Claro';
+        }
+    }
 
     // Verifica se há informações de login no localStorage
     function checkLogin() {
@@ -17,11 +56,14 @@ document.addEventListener('DOMContentLoaded', function() {
             app.querySelector(".join-screen").classList.remove("active");
             app.querySelector(".chat-screen").classList.add("active");
             loadMessages(); // Carregar mensagens salvas
+            socket.emit("newuser", uname); // Emitir evento de novo usuário
         }
     }
 
     // Recuperar mensagens do localStorage
     function loadMessages() {
+        const messageContainer = app.querySelector(".messages");
+        messageContainer.innerHTML = ''; // Limpa o contêiner de mensagens antes de carregar
         const messages = JSON.parse(localStorage.getItem('messages')) || [];
         messages.forEach(message => {
             const type = (message.username === uname) ? "my" : "other";
@@ -31,9 +73,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Salvar mensagens no localStorage
     function saveMessage(message) {
-        const messages = JSON.parse(localStorage.getItem('messages')) || [];
-        messages.push(message);
-        localStorage.setItem('messages', JSON.stringify(messages));
+        let messages = JSON.parse(localStorage.getItem('messages')) || [];
+        // Verifica se a mensagem já existe para evitar duplicatas
+        if (!messages.some(msg => msg.id === message.id)) {
+            messages.push(message);
+            localStorage.setItem('messages', JSON.stringify(messages));
+        }
     }
 
     // Limpar mensagens do localStorage e do DOM
@@ -64,7 +109,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 localStorage.setItem('user', JSON.stringify({ username, userId }));
                 app.querySelector(".join-screen").classList.remove("active");
                 app.querySelector(".chat-screen").classList.add("active");
-                socket.emit("newuser", username); // Emitir evento apenas ao fazer login pela primeira vez
+                socket.emit("newuser", username); // Emitir evento de novo usuário
                 loadMessages(); // Carregar mensagens após o login
             } else {
                 alert(data.message);
@@ -94,14 +139,37 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     app.querySelector("#show-register").addEventListener("click", function() {
-        document.querySelector(".form").style.display = 'none';
-        document.querySelector("#register-form").style.display = 'block';
+        showAuthDialog();
     });
 
     app.querySelector("#show-login").addEventListener("click", function() {
         document.querySelector(".form").style.display = 'block';
         document.querySelector("#register-form").style.display = 'none';
     });
+
+    function showAuthDialog() {
+        const authDialog = document.getElementById('auth-dialog');
+        authDialog.style.display = 'block';
+    }
+
+    function hideAuthDialog() {
+        const authDialog = document.getElementById('auth-dialog');
+        authDialog.style.display = 'none';
+    }
+
+    function checkAuthPassword() {
+        const authPassword = document.getElementById('auth-password').value;
+        if (authPassword === 'babybaby2024') {
+            hideAuthDialog();
+            document.querySelector(".form").style.display = 'none';
+            document.querySelector("#register-form").style.display = 'block';
+        } else {
+            alert('Senha incorreta. Tente novamente.');
+        }
+    }
+
+    document.getElementById('auth-submit').addEventListener('click', checkAuthPassword);
+    document.getElementById('auth-cancel').addEventListener('click', hideAuthDialog);
 
     function sendMessage() {
         let message = app.querySelector("#message-input").value;
@@ -122,6 +190,7 @@ document.addEventListener('DOMContentLoaded', function() {
         socket.emit("chat", msgObj);
         app.querySelector("#message-input").value = "";
         clearReply();
+        socket.emit("stopTyping", { username: uname }); // Emitir evento de parar de digitar
     }
 
     function handlePaste(event) {
@@ -196,7 +265,7 @@ document.addEventListener('DOMContentLoaded', function() {
             <div class="message-content">
                 <div class="message-text">
                     <div class="name">${type === "my" ? "Você" : message.username}</div>
-                    <div class="text">${message.text ? message.text : ''}</div>
+                    <div class="text">${linkify(message.text ? message.text : '')}</div>
                     ${message.image ? `<img src="${message.image}" alt="Image" class="chat-image"/>` : ''}
                     <div class="time">${message.time}</div>
                 </div>
@@ -212,7 +281,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         </div>
                         <div>
                             <div class="name">${type === "my" ? "Você" : message.username}</div>
-                            <div class="text">${message.text ? message.text : ''}</div>
+                            <div class="text">${linkify(message.text ? message.text : '')}</div>
                             ${message.image ? `<img src="${message.image}" alt="Image" class="chat-image"/>` : ''}
                             <div class="time">${message.time}</div>
                         </div>
@@ -230,6 +299,16 @@ document.addEventListener('DOMContentLoaded', function() {
 
         messageContainer.appendChild(el);
         messageContainer.scrollTop = messageContainer.scrollHeight - messageContainer.clientHeight;
+
+        // Navegador piscando na barra de tarefas
+        if (type === "other") {
+            flashTitle("Nova mensagem!");
+        }
+    }
+
+    function linkify(text) {
+        const urlPattern = /(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/ig;
+        return text.replace(urlPattern, '<a href="$1" target="_blank">$1</a>');
     }
 
     function renderUpdate(update) {
@@ -290,15 +369,49 @@ document.addEventListener('DOMContentLoaded', function() {
     // Inicializa o seletor de emoji
     const picker = document.createElement('emoji-picker');
     picker.style.position = 'absolute';
-    picker.style.bottom = '7%';
-    picker.style.right = '4%';
     picker.style.display = 'none';
     picker.setAttribute('locale', 'pt_BR');
     document.body.appendChild(picker);
 
+    // Função para posicionar o seletor de emojis de forma responsiva
+    function positionEmojiPicker() {
+        const trigger = document.querySelector('#emoji-button');
+        const rect = trigger.getBoundingClientRect();
+        
+        const margin = 10; // Margem para ajustar a posição
+        
+        picker.style.top = `${rect.top - picker.offsetHeight - margin}px`;
+        picker.style.left = `${rect.left}px`;
+
+        // Ajusta o tamanho do seletor de emojis com base no tamanho da tela
+        if (window.innerWidth < 600) {
+            picker.style.width = '90%';
+            picker.style.maxHeight = '200px';
+            picker.style.left = '5%';
+        } else {
+            picker.style.width = 'auto';
+            picker.style.maxHeight = '400px';
+        }
+
+        // Garantir que o seletor de emojis não ultrapasse os limites da tela
+        const pickerRect = picker.getBoundingClientRect();
+        if (pickerRect.right > window.innerWidth) {
+            picker.style.left = `${window.innerWidth - pickerRect.width - margin}px`;
+        }
+        if (pickerRect.left < 0) {
+            picker.style.left = `${margin}px`;
+        }
+        if (pickerRect.top < 0) {
+            picker.style.top = `${rect.bottom + margin}px`;
+        }
+    }
+
     const trigger = document.querySelector('#emoji-button');
     trigger.addEventListener('click', () => {
         picker.style.display = picker.style.display === 'none' ? 'block' : 'none';
+        if (picker.style.display === 'block') {
+            positionEmojiPicker();
+        }
     });
 
     picker.addEventListener('emoji-click', event => {
@@ -335,8 +448,52 @@ document.addEventListener('DOMContentLoaded', function() {
         logoutUser();
     });
     
+    document.querySelector("#toggle-mode").addEventListener("click", function() {
+        toggleMode();
+    });
+
+    document.querySelector("#dropdown-toggle-mode").addEventListener("click", function() {
+        toggleMode();
+    });
+
+    document.querySelector("#dropdown-clear-chat").addEventListener("click", function() {
+        clearChat();
+    });
+
     document.querySelector("#dropdown-exit-chat").addEventListener("click", function() {
         logoutUser();
+    });
+
+    // Função para fazer o navegador piscar na barra de tarefas
+    function flashTitle(newMsg) {
+        flashing = true;
+        let interval = setInterval(() => {
+            if (!flashing) {
+                clearInterval(interval);
+                document.title = originalTitle;
+                return;
+            }
+            document.title = (document.title === originalTitle) ? newMsg : originalTitle;
+        }, 1000);
+    }
+
+    // Parar de piscar o título quando a aba se torna ativa
+    window.addEventListener('focus', function() {
+        flashing = false;
+        document.title = originalTitle;
+    });
+
+    // Emitir evento de digitação
+    app.querySelector("#message-input").addEventListener("input", function() {
+        if (this.value.length > 0) {
+            socket.emit("typing", { username: uname });
+            clearTimeout(typingTimeout);
+            typingTimeout = setTimeout(() => {
+                socket.emit("stopTyping", { username: uname });
+            }, 1000);
+        } else {
+            socket.emit("stopTyping", { username: uname });
+        }
     });
 
     socket.on("update", function(update) {
@@ -354,6 +511,20 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById("user-count").innerText = count;
     });
 
+    socket.on("typing", function(data) {
+        const typingIndicator = document.getElementById("typing-indicator");
+        typingIndicator.innerText = `${data.username} está digitando...`;
+        typingIndicator.style.display = "block";
+    });
+
+    socket.on("stopTyping", function(data) {
+        const typingIndicator = document.getElementById("typing-indicator");
+        typingIndicator.style.display = "none";
+    });
+
     // Verifica login ao carregar a página
     checkLogin();
+
+    // Carregar o modo preferido do usuário ao carregar a página
+    loadMode();
 });
