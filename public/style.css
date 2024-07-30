@@ -305,3 +305,149 @@ body.dark-mode .messages .chat-image {
 html {
     -webkit-text-size-adjust: 100%;
 }
+
+
+.typing-indicator {
+    display: none;
+    font-style: italic;
+    color: grey;
+    margin-bottom: 10px;
+}
+
+/* Estilos para o modo claro */
+body.light-mode {
+    background-color: #f0f0f0;
+    color: #000000;
+}
+
+body.light-mode .app {
+    background-color: #ffffff;
+    border: 1px solid #ccc;
+}
+
+body.light-mode .header {
+    background-color: #ffffff;
+    color: #000000;
+}
+
+body.light-mode .messages-container {
+    background-color: #f9f9f9;
+}
+
+/* Estilos para o modo claro */
+body.light-mode .chat-screen .messages {
+    background: #f0f0f0;
+}
+
+body.light-mode .typebox {
+    background-color: #ffffff;
+    border-top: 1px solid #ccc;
+}
+
+body.light-mode .form {
+    background-color: #ffffff;
+    border: 1px solid #ccc;
+}
+
+body.light-mode .form h2 {
+    color: #000000;
+}
+
+body.light-mode .form-group label {
+    color: #000000;
+}
+
+body.light-mode .btn-primary {
+    background-color: #007bff;
+    border-color: #007bff;
+}
+
+body.light-mode .btn-secondary {
+    background-color: #6c757d;
+    border-color: #6c757d;
+}
+
+body.light-mode .btn-danger {
+    background-color: #dc3545;
+    border-color: #dc3545;
+}
+
+body.light-mode .form-control,
+body.light-mode .btn,
+body.light-mode .typebox input,
+body.light-mode .typebox button {
+    background-color: #ffffff;
+    color: #000000;
+    border: 1px solid #ccc;
+}
+
+body.light-mode .messages .message > div {
+    background-color: #ffffff;
+    color: #000000;
+}
+
+body.light-mode .messages .update {
+    color: #000000;
+}
+
+body.light-mode .messages .chat-image {
+    border: 1px solid #ccc;
+}
+
+emoji-picker {
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+
+.message .message-text a {
+    color: blue;
+    text-decoration: underline;
+}
+
+
+/* Estilo para a caixa de diálogo */
+#auth-dialog {
+    display: none; 
+    position: fixed; 
+    z-index: 1000; 
+    left: 0; 
+    top: 0; 
+    width: 100%; 
+    height: 100%; 
+    overflow: auto; 
+    background-color: rgba(0,0,0,0.4);
+}
+
+#auth-dialog .dialog-content {
+    background-color: #fefefe; 
+    margin: 15% auto; 
+    padding: 20px; 
+    border: 1px solid #888; 
+    width: 80%; 
+    max-width: 300px; 
+}
+
+#auth-dialog input[type="password"] {
+    width: 100%;
+    padding: 12px 20px;
+    margin: 8px 0;
+    display: inline-block;
+    border: 1px solid #ccc;
+    box-sizing: border-box;
+}
+
+#auth-dialog .dialog-button {
+    background-color: #4CAF50;
+    color: white;
+    padding: 14px 20px;
+    margin: 8px 0;
+    border: none;
+    cursor: pointer;
+    width: 100%;
+}
+
+#auth-dialog .dialog-button:hover {
+    opacity: 0.8;
+}
+
